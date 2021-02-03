@@ -161,7 +161,7 @@ void _OSPI_Erase(OSPI_HandleTypeDef *hospi, uint8_t instruction, uint32_t addres
   sCommand.Instruction           = instruction;
   sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
   sCommand.Address               = address;
-  sCommand.AddressSize           = HAL_OSPI_ADDRESS_24_BITS;
+  sCommand.AddressSize           = HAL_OSPI_ADDRESS_32_BITS;
   sCommand.AlternateBytesMode    = HAL_OSPI_ALTERNATE_BYTES_NONE;
   sCommand.NbData                = 0;
   sCommand.DummyCycles           = 0;
@@ -189,19 +189,19 @@ void _OSPI_Erase(OSPI_HandleTypeDef *hospi, uint8_t instruction, uint32_t addres
 // Erases a 64kB block
 void OSPI_BlockErase64(OSPI_HandleTypeDef *hospi, uint32_t address)
 {
-  _OSPI_Erase(hospi, 0xD8, address); // Block Erase (64kB)
+  _OSPI_Erase(hospi, 0xdc, address); // Block Erase (64kB)
 }
 
 // Erases a 32kB block
 void OSPI_BlockErase32(OSPI_HandleTypeDef *hospi, uint32_t address)
 {
-  _OSPI_Erase(hospi, 0x52, address); // Block Erase (32kB)
+  _OSPI_Erase(hospi, 0x5c, address); // Block Erase (32kB)
 }
 
 // Erases a 4kB sector
 void OSPI_SectorErase(OSPI_HandleTypeDef *hospi, uint32_t address)
 {
-  _OSPI_Erase(hospi, 0x20, address); // Sector Erase (4kB)
+  _OSPI_Erase(hospi, 0x21, address); // Sector Erase (4kB)
 }
 
 void  _OSPI_Program(OSPI_HandleTypeDef *hospi, uint32_t address, const uint8_t *buffer, size_t buffer_size)
@@ -212,10 +212,10 @@ void  _OSPI_Program(OSPI_HandleTypeDef *hospi, uint32_t address, const uint8_t *
   memset(&sCommand, 0x0, sizeof(sCommand));
   sCommand.OperationType         = HAL_OSPI_OPTYPE_COMMON_CFG;
   sCommand.FlashId               = 0;
-  sCommand.Instruction           = 0x02; // PP
+  sCommand.Instruction           = 0x12; // PP
   sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
   sCommand.Address               = address;
-  sCommand.AddressSize           = HAL_OSPI_ADDRESS_24_BITS;
+  sCommand.AddressSize           = HAL_OSPI_ADDRESS_32_BITS;
   sCommand.AlternateBytesMode    = HAL_OSPI_ALTERNATE_BYTES_NONE;
   sCommand.NbData = buffer_size;
   sCommand.DummyCycles           = 0;
@@ -224,7 +224,7 @@ void  _OSPI_Program(OSPI_HandleTypeDef *hospi, uint32_t address, const uint8_t *
   sCommand.InstructionDtrMode    = HAL_OSPI_INSTRUCTION_DTR_DISABLE;
 
   if(g_quad_mode == HALF_QUAD_MODE) {
-    sCommand.Instruction         = 0x38; // 4PP
+    sCommand.Instruction         = 0x3e; // 4PP
   }
 
   set_cmd_lines(&sCommand, g_quad_mode, 1, 1);
@@ -267,10 +267,10 @@ void _OSPI_Read(OSPI_HandleTypeDef *hospi, uint32_t address, uint8_t *buffer, si
   memset(&sCommand, 0x0, sizeof(sCommand));
   sCommand.OperationType         = HAL_OSPI_OPTYPE_COMMON_CFG;
   sCommand.FlashId               = 0;
-  sCommand.Instruction           = 0x0B; // FAST_READ
+  sCommand.Instruction           = 0x0c; // FAST_READ
   sCommand.InstructionSize       = HAL_OSPI_INSTRUCTION_8_BITS;
   sCommand.Address               = address;
-  sCommand.AddressSize           = HAL_OSPI_ADDRESS_24_BITS;
+  sCommand.AddressSize           = HAL_OSPI_ADDRESS_32_BITS;
   sCommand.AlternateBytesMode    = HAL_OSPI_ALTERNATE_BYTES_NONE;
   sCommand.NbData = buffer_size;
   sCommand.DummyCycles           = 8;
@@ -319,7 +319,7 @@ void OSPI_EnableMemoryMappedMode(OSPI_HandleTypeDef *spi) {
   OSPI_MemoryMappedTypeDef sMemMappedCfg;
 
   OSPI_RegularCmdTypeDef sCommand = {
-    .Instruction = 0x0b, // FAST READ
+    .Instruction = 0x0c, // FAST READ
     .SIOOMode = HAL_OSPI_SIOO_INST_EVERY_CMD,
     .AlternateBytesMode = HAL_OSPI_ALTERNATE_BYTES_NONE,
     .OperationType = HAL_OSPI_OPTYPE_READ_CFG,
@@ -329,7 +329,7 @@ void OSPI_EnableMemoryMappedMode(OSPI_HandleTypeDef *spi) {
     .AddressDtrMode = HAL_OSPI_ADDRESS_DTR_DISABLE,
     .DataDtrMode = HAL_OSPI_DATA_DTR_DISABLE,
     .DQSMode = HAL_OSPI_DQS_DISABLE,
-    .AddressSize = HAL_OSPI_ADDRESS_24_BITS,
+    .AddressSize = HAL_OSPI_ADDRESS_32_BITS,
     .SIOOMode = HAL_OSPI_SIOO_INST_EVERY_CMD,
     .DummyCycles = 8,
     .AlternateBytesSize = HAL_OSPI_ALTERNATE_BYTES_8_BITS,
@@ -341,7 +341,7 @@ void OSPI_EnableMemoryMappedMode(OSPI_HandleTypeDef *spi) {
   set_cmd_lines(&sCommand, g_quad_mode, 1, 1);
 
   if (g_quad_mode != SPI_MODE) {
-    sCommand.Instruction = 0xeb;
+    sCommand.Instruction = 0xec;
     sCommand.DummyCycles = 6;
   }
 
